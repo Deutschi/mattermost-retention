@@ -29,6 +29,9 @@ mysql --password=$DB_PASS --user=$DB_USER --host=$DB_HOST --database=$DB_NAME --
 # remove user-deleted posts based on secondary retention2
 mysql --password=$DB_PASS --user=$DB_USER --host=$DB_HOST --database=$DB_NAME --execute="DELETE FROM Posts WHERE CreateAt < $delete_before2 AND DeleteAt > 0;"
 
+# remove old jobs that were successful
+mysql --password=$DB_PASS --user=$DB_USER --host=$DB_HOST --database=$DB_NAME --execute="DELETE FROM Jobs WHERE Status = 'success' AND CreateAt < $delete_before AND StartAt < $delete_before AND LastActivityAt < $delete_before;"
+
 # get list of orphaned files to be removed
 mysql --password=$DB_PASS --user=$DB_USER --host=$DB_HOST --database=$DB_NAME --execute="SELECT Path FROM FileInfo AS fi LEFT JOIN Posts AS p ON fi.PostId = p.Id WHERE p.Id IS NULL OR fi.PostId = '';" > /tmp/mattermost-paths.list
 mysql --password=$DB_PASS --user=$DB_USER --host=$DB_HOST --database=$DB_NAME --execute="SELECT ThumbnailPath FROM FileInfo AS fi LEFT JOIN Posts AS p ON fi.PostId = p.Id WHERE p.Id IS NULL OR fi.PostId = '';" >> /tmp/mattermost-paths.list
